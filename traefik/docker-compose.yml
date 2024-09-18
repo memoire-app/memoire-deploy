@@ -6,7 +6,7 @@ services:
     command:
       - "--log.level=DEBUG"
       - "--api.dashboard=true"
-      - "--api.insecure=true"
+#      - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--log.filePath=/logs/traefik.log" 
@@ -14,6 +14,9 @@ services:
       - "--accesslog.filePath=/logs/access.log"
       # entrypoints definition
       - "--entryPoints.web.address=:80"
+      - "--entryPoints.https.address=:443"
+      # HTTPS
+      - "--certificatesresolvers.certif.acme.httpchallenge=true"
     environment:
       - TZ=Europe/Paris
     ports:
@@ -24,17 +27,11 @@ services:
     volumes:
       # traefik listen to Docker events
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - ./logs/:/logs/
-      - "./traefik/acme.json:/acme.json"
+      - "./logs/:/logs/"
+      - "./letsencrypt:/letsencrypt"
     networks:
       - traefik-public
       - internal
-    labels:
-      - "traefik.http.routers.traefik.entrypoints=https"
-      - "traefik.http.routers.traefik.rule=Host(`memoire.cloud`)"
-      - "traefik.http.routers.traefik.rule=Host(`dev.memoire.cloud`)"
-      - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.routers.traefik.tls=true"
 
 networks:
   internal:
