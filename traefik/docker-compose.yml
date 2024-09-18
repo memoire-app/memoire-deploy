@@ -1,0 +1,45 @@
+services:
+
+  traefik:
+    image: "traefik:v3.1"
+    container_name: "traefik"
+    command:
+      - "--log.level=DEBUG"
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--log.filePath=/logs/traefik.log" 
+      - "--accesslog=true"
+      - "--accesslog.filePath=/logs/access.log"
+      # entrypoints definition
+      - "--entryPoints.web.address=:80"
+    environment:
+      - TZ=Europe/Paris
+    ports:
+      # HTTP Port
+      - "80:80"
+      # HTTPS Port
+      - "443:443"
+    volumes:
+      # traefik listen to Docker events
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - ./logs/:/logs/
+      - "./traefik/acme.json:/acme.json"
+    networks:
+      - traefik-public
+      - internal
+    labels:
+      - "traefik.http.routers.traefik.entrypoints=https"
+      - "traefik.http.routers.traefik.rule=Host(`memoire.cloud`)"
+      - "traefik.http.routers.traefik.rule=Host(`dev.memoire.cloud`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.tls=true"
+
+networks:
+  internal:
+    name: internal
+    driver: bridge
+  traefik-public:
+    name: traefik-public
+    external: true

@@ -1,0 +1,51 @@
+services:
+  
+  frontend:
+    image: "FRONTEND IMAGE"
+    container_name: "${TARGET_ENVIRONMENT}-frontend"
+    env_file: .env.{env}.frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${TARGET_ENVIRONMENT}-frontend.rule=Host(`${TARGET_HOST}`) && PathPrefix(`/`)"
+      - "traefik.http.routers.${TARGET_ENVIRONMENT}-frontend.entrypoints=web"
+    networks:
+      - traefik-public
+      
+  backend:
+    image: "BACKEND IMAGE"
+    container_name: "${TARGET_ENVIRONMENT}-backend"
+    env_file: .env.{env}.backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${TARGET_ENVIRONMENT}-backend.rule=Host(`${TARGET_HOST}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.${TARGET_ENVIRONMENT}-backend.entrypoints=web"
+      - "traefik.http.services.${TARGET_ENVIRONMENT}-backend.loadbalancer.server.port=3333"
+    depends_on:
+      - postgres
+    networks:
+      - traefik-public
+      - internal
+
+  postgres:
+    image: postgres:13
+    container_name: "${TARGET_ENVIRONMENT}-postgres"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_NAME}
+      - PGPORT=${POSTGRES_PORT}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+networks:
+  internal:
+    name: internal
+    driver: bridge
+  traefik-public:
+    name: traefik-public
+    external: true
+
+volumes:
+  postgres_data:
