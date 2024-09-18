@@ -12,13 +12,5 @@ providers:
   docker:
     exposedByDefault: false
 
-certificatesResolvers:
-  myresolver:
-    acme:
-      email: YOUR_EMAIL
-      storage: "./letsencrypt/acme.json"          
-      httpChallenge:
-        entryPoint: web
-  
 log:
   level: DEBUG
