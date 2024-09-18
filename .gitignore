@@ -1,5 +1,13 @@
+# Env
 dev/
 prod/
+
+# Traefik
 traefik/traefik.yml
+traefik/docker-compose.yml
+
+# Logs
 logs
+
+# LE
 letsencrypt

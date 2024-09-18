@@ -15,8 +15,11 @@ services:
       # entrypoints definition
       - "--entryPoints.web.address=:80"
       - "--entryPoints.https.address=:443"
-      # HTTPS
-      - "--certificatesresolvers.certif.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.email=YOUR_EMAIL"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     environment:
       - TZ=Europe/Paris
     ports:
